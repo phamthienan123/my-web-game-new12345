@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trang người dùng</title>
+</head>
+<body>
+    <h1>Xin chào {{ username }}!</h1>
+    <p>Bạn hiện có <strong>{{ diamonds }}</strong> 💎 kim cương.</p>
+
+    <h3>Danh sách vật phẩm có thể mua:</h3>
+    <ul>
+    {% for item, data in items.items() %}
+        <li>
+            {{ item }} - {{ data.buy }} 💎
+            {% if item in inventory %}
+                <strong> - Đã mua</strong>
+            {% else %}
+                <form method="post" action="/buy/{{ item }}" style="display:inline;">
+                    <button type="submit">Mua</button>
+                </form>
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+
+    {% if inventory %}
+        <h3>Vật phẩm bạn sở hữu:</h3>
+        <ul>
+        {% for item in inventory %}
+            <li>
+                {{ item }}
+                <form method="post" action="/sell/{{ item }}" style="display:inline;">
+                    <button type="submit">Bán ({{ items[item].sell }}💎)</button>
+                </form>
+            </li>
+        {% endfor %}
+        </ul>
+    {% endif %}
