@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        <background-color: #f0f10f; /
+        button {
+            padding: 10px 20px;
+            background-color: #56ff78;
+            color:greenyellow;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+    <title>Quản lý Admin</title>
+</head>
+<body>
+    <h1>Xin chào Admin!</h1>
+
+    <h2>Danh sách tài khoản người dùng</h2>
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>Tài khoản</th>
+            <th>Số kim cương</th>
+            <th>Hành động</th>
+        </tr>
+        {% for username, info in users.items() %}
+        <tr>
+            <td>{{ username }}</td>
+            <td>{{ info.item }}</td>
+            <td>
+                <form method="post" action="/give/{{ username }}" style="display:inline;">
+                    <input type="number" name="amount" min="1" placeholder="Số kim cương">
+                    <button type="submit">Tặng</button>
+                </form>
+                <a href="/delete/{{ username }}" onclick="return confirm('Xóa tài khoản này?');">Xóa</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Quản lý vật phẩm</h2>
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>Tên vật phẩm</th>
+            <th>Giá mua</th>
+            <th>Giá bán</th>
+            <th>Hành động</th>
+        </tr>
+        {% for name, data in items.items() %}
+        <tr>
+            <form method="post" action="/update_item/{{ name }}">
+                <td>{{ name }}</td>
+                <td><input type="number" name="buy" step="0.1" value="{{ data.buy }}" min="1"></td>
+                <td><input type="number" name="sell" step="0.1" value="{{ data.sell }}" min="0"></td>
+                <td><button type="submit">Cập nhật</button></td>
+            </form>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <p><a href="/logout">Đăng xuất</a></p>
+</body>
+</html>
