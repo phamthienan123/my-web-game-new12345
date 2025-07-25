@@ -1,1 +1,14 @@
-{"ki\u1ebfm r\u1ed3ng": {"buy": 20, "sell": 10}, "gi\u00e1p v\u00e0ng": {"buy": 35, "sell": 17.5}, "khi\u00ean b\u0103ng": {"buy": 40, "sell": 20}}
+{
+    "kiếm rồng": {
+        "buy": 20,
+        "sell": 10
+    },
+    "giáp vàng": {
+        "buy": 35,
+        "sell": 17.5
+    },
+    "khiên băng": {
+        "buy": 40,
+        "sell": 20
+    }
+}
