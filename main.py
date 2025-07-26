@@ -83,31 +83,43 @@ def home():
         return redirect('/')
     user = USERS[session['username']]
     return render_template('home.html', username=session['username'], diamonds=user['item'], inventory=user['inventory'], items=ITEMS)
-
-@app.route('/buy/<item>', methods=['POST'])
-def buy(item):
+@app.route('/shop')
+def shop():
     if 'username' not in session or session['username'] == 'admin':
         return redirect('/')
-    user = USERS[session['username']]
+    username = session['username']
+    user_data = USERS[username]
+    return render_template('shop.html',
+                           username=username,
+                           diamonds=user_data['diamonds'],
+                           inventory=user_data['inventory'],
+                           items=ITEMS)
+@app.route('/buy/<item>', methods=['POST'])
+def buy_item(item):
+    if 'username' not in session or session['username'] == 'admin':
+        return redirect('/')
+    username = session['username']
+    user = USERS[username]
     if item in ITEMS and item not in user['inventory']:
-        price = ITEMS[item]['buy']
-        if user['item'] >= price:
-            user['item'] -= price
+        cost = ITEMS[item]['buy']
+        if user['diamonds'] >= cost:
+            user['diamonds'] -= cost
             user['inventory'].append(item)
             save_users()
-    return redirect('/home')
+    return redirect('/shop')
+
 
 @app.route('/sell/<item>', methods=['POST'])
 def sell_item(item):
     if 'username' not in session or session['username'] == 'admin':
         return redirect('/')
-    user = USERS[session['username']]
-    if item in user['inventory'] and item in ITEMS:
-        refund = ITEMS[item]['sell']
-        user['item'] += refund
+    username = session['username']
+    user = USERS[username]
+    if item in ITEMS and item in user['inventory']:
+        user['diamonds'] += ITEMS[item]['sell']
         user['inventory'].remove(item)
         save_users()
-    return redirect('/home')
+    return redirect('/shop')
 
 @app.route('/admin')
 def admin():
