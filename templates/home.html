@@ -1,26 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Trang người dùng</title>
+    <meta charset="UTF-8">
+    <title>Trang chính</title>
 </head>
 <body>
-    <h1>Xin chào {{ username }}!</h1>
-    <p>Bạn hiện có <strong>{{ diamonds }}</strong> 💎 kim cương.</p>
+    <div style="position: fixed; top: 10px; right: 10px; background: #fff; border-radius: 10px; padding: 10px; box-shadow: 0 0 5px #ccc;">
+        {{ diamonds }} 💎
+    </div>
 
-    <h3>Danh sách vật phẩm có thể mua:</h3>
-    <ul>
-    {% for item, data in items.items() %}
-        <li>
-            {{ item }} - {{ data.buy }} 💎
-            {% if item in inventory %}
-                <strong> - Đã mua</strong>
-            {% else %}
-                <form method="post" action="/buy/{{ item }}" style="display:inline;">
-                    <button type="submit">Mua</button>
-                </form>
-            {% endif %}
-        </li>
-    {% endfor %}
+    <h1>Chào mừng, {{ username }}!</h1>
+    <p>Đây là trang chính. Bạn có thể xem thông tin, trạng thái nhân vật hoặc <a href="/shop">đến cửa hàng</a>.</p>
+
+    <form method="post" action="/logout">
+        <button type="submit">Đăng xuất</button>
+    </form>
+</body>
+</html>
     </ul>
 
     {% if inventory %}
