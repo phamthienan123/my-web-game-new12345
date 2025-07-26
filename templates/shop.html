@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cửa hàng vật phẩm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .top-bar {
+            text-align: right;
+            font-weight: bold;
+        }
+        .item-list {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        {{ username }} | 💎 {{ diamonds }}
+        | <a href="/home">Trang chính</a>
+        | <a href="/logout">Đăng xuất</a>
+    </div>
+
+    <h2>Danh sách vật phẩm</h2>
+    <div class="item-list">
+        <ul>
+        {% for item, data in items.items() %}
+            <li>
+                {{ item }} - Mua: {{ data.buy }} 💎
+                {% if item in inventory %}
+                    <strong> - Đã mua</strong>
+                    <form method="POST" action="/sell/{{ item }}" style="display:inline;">
+                        <button type="submit">Bán ({{ data.sell }} 💎)</button>
+                    </form>
+                {% else %}
+                    <form method="POST" action="/buy/{{ item }}" style="display:inline;">
+                        <button type="submit">Mua</button>
+                    </form>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
