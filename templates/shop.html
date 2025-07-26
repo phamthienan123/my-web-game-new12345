@@ -5,41 +5,76 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            background: #f4f4f4;
             padding: 20px;
         }
         .top-bar {
             text-align: right;
-            font-weight: bold;
+            margin-bottom: 20px;
         }
-        .item-list {
-            margin-top: 30px;
+        .top-bar a {
+            margin-left: 15px;
+            text-decoration: none;
+        }
+        .shop-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .item-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+            width: 200px;
+            text-align: center;
+        }
+        .item-card button {
+            background-color: #28a745;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            margin-top: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .item-card button:hover {
+            background-color: #218838;
+        }
+        .item-card form {
+            margin: 0;
         }
     </style>
 </head>
 <body>
     <div class="top-bar">
-        {{ username }} | 💎 {{ diamonds }}
-        | <a href="/home">Trang chính</a>
-        | <a href="/logout">Đăng xuất</a>
+        Xin chào {{ username }} | 💎 {{ diamonds }}
+        <a href="/home">Trang chính</a>
+        <a href="/logout">Đăng xuất</a>
     </div>
 
-    <h2>Danh sách vật phẩm</h2>
-    <div class="item-list">
-        <ul>
+    <h2>Cửa hàng vật phẩm</h2>
+
+    <div class="shop-container">
         {% for item, data in items.items() %}
-            <li>
-                {{ item }} - Mua: {{ data.buy }} 💎
-                {% if item in inventory %}
-                    <strong> - Đã mua</strong>
-                    <form method="POST" action="/sell/{{ item }}" style="display:inline;">
-                        <button type="submit">Bán ({{ data.sell }} 💎)</button>
-                    </form>
-                {% else %}
-                    <form method="POST" action="/buy/{{ item }}" style="display:inline;">
-                        <button type="submit">Mua</button>
-                    </form>
-                {% endif %}
-            </li>
+        <div class="item-card">
+            <h3>{{ item }}</h3>
+            <p>Giá mua: {{ data.buy }} 💎</p>
+            {% if item in inventory %}
+                <p><strong>Đã mua</strong></p>
+                <form method="POST" action="/sell/{{ item }}">
+                    <button type="submit">Bán lại ({{ data.sell }} 💎)</button>
+                </form>
+            {% else %}
+                <form method="POST" action="/buy/{{ item }}">
+                    <button type="submit">🛒 Mua</button>
+                </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
         {% endfor %}
         </ul>
     </div>
