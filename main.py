@@ -58,10 +58,12 @@ def register():
 
 @app.route('/dashboard')
 def dashboard():
-    if 'username' not in session or session['username'] == 'admin':
+    if 'username' not in session:
         return redirect('/')
-    user = USERS[session['username']]
-    return render_template('dashboard.html', username=session['username'], diamonds=user['diamonds'])
+    username = session['username']
+    user_data = USERS.get(username, {})
+    diamonds = user_data.get('diamonds', 0)
+    return render_template('dashboard.html', username=username, diamonds=diamonds)
 
 @app.route('/shop')
 def shop():
