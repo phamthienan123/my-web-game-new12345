@@ -1,14 +1,17 @@
 {
-    "kiếm rồng": {
-        "buy": 20,
-        "sell": 10
-    },
-    "giáp vàng": {
-        "buy": 35,
-        "sell": 17.5
-    },
-    "khiên băng": {
-        "buy": 40,
-        "sell": 20
-    }
+  "kiếm rồng": {
+    "buy": 20,
+    "sell": 10,
+    "image": "kiem-rong.png"
+  },
+  "giáp vàng": {
+    "buy": 35,
+    "sell": 17,
+    "image": "giap-vang.png"
+  },
+  "khiên băng": {
+    "buy": 40,
+    "sell": 20,
+    "image": "khien-bang.png"
+  }
 }
