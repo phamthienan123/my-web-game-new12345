@@ -2,15 +2,46 @@
 <html>
 <head>
     <title>Trang chính</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 30px;
+        }
+        .diamond {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 18px;
+            background: #f0f0f0;
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+        h1 {
+            font-size: 36px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin-top: 10px;
+        }
+        a {
+            text-decoration: none;
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Xin chào {{ username }}!</h1>
-    <p>Bạn đang có <strong>{{ diamonds }}</strong> 💎 kim cương.</p>
+    <div class="diamond">
+        💎 {{ diamonds }} kim cương
+    </div>
 
-    <h3>Chức năng:</h3>
+    <h1>Xin chào {{ username }}!</h1>
+    <p>Chức năng:</p>
     <ul>
-        <li><a href="/shop">🛒 Vào cửa hàng</a></li>
-        <li><a href="/logout">🚪 Đăng xuất</a></li>
+        <li>🛒 <a href="/shop">Vào cửa hàng</a></li>
+        <li>📕 <a href="/logout">Đăng xuất</a></li>
     </ul>
 </body>
 </html>
