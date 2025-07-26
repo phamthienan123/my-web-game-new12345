@@ -4,79 +4,74 @@
     <title>Cửa hàng vật phẩm</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
+            font-family: Arial;
             padding: 20px;
         }
-        .top-bar {
-            text-align: right;
-            margin-bottom: 20px;
+        .diamond {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 18px;
         }
-        .top-bar a {
-            margin-left: 15px;
-            text-decoration: none;
-        }
-        .shop-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .item-card {
-            background: white;
-            padding: 15px;
+        .item {
+            border: 1px solid #ccc;
             border-radius: 10px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin: 10px;
             width: 200px;
+            display: inline-block;
             text-align: center;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
         }
-        .item-card button {
-            background-color: #28a745;
-            border: none;
-            color: white;
-            padding: 8px 16px;
+        .item img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+        .item button {
+            padding: 8px 12px;
             margin-top: 10px;
+            border: none;
+            background-color: #28a745;
+            color: white;
             border-radius: 5px;
             cursor: pointer;
         }
-        .item-card button:hover {
-            background-color: #218838;
+        .item button.sell {
+            background-color: #dc3545;
         }
-        .item-card form {
-            margin: 0;
+        .item button:disabled {
+            background-color: #999;
+            cursor: not-allowed;
         }
     </style>
 </head>
 <body>
-    <div class="top-bar">
-        Xin chào {{ username }} | 💎 {{ diamonds }}
-        <a href="/home">Trang chính</a>
-        <a href="/logout">Đăng xuất</a>
+    <h1>Cửa hàng vật phẩm</h1>
+
+    <div class="diamond">
+        💎 {{ diamonds }} kim cương
+        | <a href="/home">Quay lại</a>
     </div>
 
-    <h2>Cửa hàng vật phẩm</h2>
+    {% for item_name, data in items.items() %}
+    <div class="item">
+        <h3>{{ item_name }}</h3>
+        <img src="{{ url_for('static', filename='images/' + data.image) }}" alt="{{ item_name }}">
+        <p>Mua: {{ data.buy }} 💎<br>Bán: {{ data.sell }} 💎</p>
 
-    <div class="shop-container">
-        {% for item, data in items.items() %}
-        <div class="item-card">
-            <h3>{{ item }}</h3>
-            <p>Giá mua: {{ data.buy }} 💎</p>
-            {% if item in inventory %}
-                <p><strong>Đã mua</strong></p>
-                <form method="POST" action="/sell/{{ item }}">
-                    <button type="submit">Bán lại ({{ data.sell }} 💎)</button>
-                </form>
-            {% else %}
-                <form method="POST" action="/buy/{{ item }}">
-                    <button type="submit">🛒 Mua</button>
-                </form>
-            {% endif %}
-        </div>
-        {% endfor %}
+        {% if item_name in inventory %}
+            <button disabled>Đã mua</button>
+            <form method="post" action="/sell/{{ item_name }}">
+                <button type="submit" class="sell">Bán</button>
+            </form>
+        {% else %}
+            <form method="post" action="/buy/{{ item_name }}">
+                <button type="submit">Mua hàng</button>
+            </form>
+        {% endif %}
     </div>
-</body>
-</html>
-        {% endfor %}
-        </ul>
-    </div>
+    {% endfor %}
 </body>
 </html>
