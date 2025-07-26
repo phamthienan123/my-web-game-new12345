@@ -7,11 +7,11 @@
   "giáp vàng": {
     "buy": 35,
     "sell": 17,
-    "image": "giap.png"
+    "image": "giap.jpg"
   },
   "khiên băng": {
     "buy": 40,
     "sell": 20,
-    "image": "khien.png"
+    "image": "khien.jpg"
   }
 }
