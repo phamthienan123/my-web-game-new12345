@@ -4,44 +4,55 @@
     <title>Trang chính</title>
     <style>
         body {
-            font-family: Arial;
+            font-family: Arial, sans-serif;
             padding: 30px;
+            margin: 0;
         }
-        .diamond {
+
+        .top-bar {
             position: absolute;
             top: 15px;
             right: 20px;
-            font-size: 18px;
-            background: #f0f0f0;
-            padding: 6px 12px;
-            border-radius: 8px;
+            background-color: #f0f0f0;
+            padding: 10px 15px;
+            border-radius: 10px;
+            text-align: right;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
+
+        .top-bar span {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .top-bar a {
+            display: inline-block;
+            margin-left: 10px;
+            text-decoration: none;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
         h1 {
+            margin-top: 120px;
             font-size: 36px;
         }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        li {
-            margin-top: 10px;
-        }
-        a {
-            text-decoration: none;
-            font-size: 18px;
-        }
+
     </style>
 </head>
 <body>
-    <div class="diamond">
-        💎 {{ diamonds }} kim cương
+    <div class="top-bar">
+        <span>💎 {{ diamonds }}</span>
+        <a href="/shop">🛒</a>
+        <a href="/logout">📕 Đăng xuất</a>
     </div>
 
     <h1>Xin chào {{ username }}!</h1>
-    <p>Chức năng:</p>
-    <ul>
-        <li>🛒 <a href="/shop">Vào cửa hàng</a></li>
-        <li>📕 <a href="/logout">Đăng xuất</a></li>
-    </ul>
+    <p>Chào mừng bạn đến với trang chính!</p>
+    <h2>Đây là trang web của Tôm</h2>
 </body>
 </html>
