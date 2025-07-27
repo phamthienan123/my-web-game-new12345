@@ -6,9 +6,35 @@ app = Flask(__name__)
 app.secret_key = 'super_secret_key'
 
 # Load users
+import os, json
+
 if os.path.exists('users.json'):
-    with open('users.json', 'r') as f:
-        USERS = json.load(f)
+    try:
+        with open('users.json', 'r') as f:
+            USERS = json.load(f)
+    except json.JSONDecodeError:
+        print("⚠️ Lỗi định dạng file users.json. Đang khởi tạo lại...")
+        USERS = {
+            "admin": {
+                "password": "1234",
+                "diamonds": 999,
+                "inventory": [],
+                "quests": {}
+            }
+        }
+        with open('users.json', 'w') as f:
+            json.dump(USERS, f, indent=2)
+else:
+    USERS = {
+        "admin": {
+            "password": "1234",
+            "diamonds": 999,
+            "inventory": [],
+            "quests": {}
+        }
+    }
+    with open('users.json', 'w') as f:
+        json.dump(USERS, f, indent=2)
 else:
     USERS = {
         "admin": {
