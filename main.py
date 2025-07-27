@@ -122,25 +122,39 @@ def admin():
             json.dump(ITEMS, f)
     users_to_show = {u: info for u, info in USERS.items() if u != 'admin'}
     return render_template('admin.html', users=users_to_show, items=ITEMS)
-@app.route('/admin/quests', methods=['GET', 'POST'])
-def admin_quests():
-    if 'username' not in session or session['username'] != 'admin':
-        return redirect('/')
-    
-    message = ''
-    if request.method == 'POST':
+@app.route('/add_mission', methods=['POST'])
+def add_mission():
+    if 'username' in session and session['username'] == 'admin':
         title = request.form.get('title')
-        reward = int(request.form.get('reward', 0))
-        for user in USERS:
+        reward = int(request.form.get('reward'))
+
+        for user, data in USERS.items():
             if user != 'admin':
-                USERS[user].setdefault('quests', []).append({
-                    "title": title,
-                    "completed": False,
-                    "reward": reward
+                if 'missions' not in data:
+                    data['missions'] = []
+                data['missions'].append({
+                    'title': title,
+                    'reward': reward,
+                    'completed': False
                 })
         save_users()
-        message = 'Đã thêm nhiệm vụ cho tất cả người dùng.'
-    return render_template('admin_quests.html', message=message)
+        return redirect('/admin')
+    return redirect('/')
+@app.route('/missions', methods=['GET', 'POST'])
+def missions():
+    if 'username' not in session or session['username'] == 'admin':
+        return redirect('/')
+
+    username = session['username']
+    user_data = USERS[username]
+
+    if request.method == 'POST':
+        index = int(request.form.get('mission_index'))
+        if not user_data['missions'][index]['completed']:
+            user_data['missions'][index]['completed'] = True
+            user_data['diamonds'] += user_data['missions'][index]['reward']
+            save_users()
+    return render_template('missions.html', missions=user_data['missions'])
 @app.route('/give/<username>', methods=['POST'])
 def give_diamonds(username):
     if 'username' in session and session['username'] == 'admin':
