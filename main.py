@@ -69,6 +69,8 @@ def register():
     return render_template('register.html', error=error)
 
 # Trang chính người dùng
+from datetime import datetime  # NÊN đặt ở đầu file
+
 @app.route('/dashboard')
 def dashboard():
     if 'username' not in session:
@@ -76,17 +78,17 @@ def dashboard():
     
     username = session['username']
     user_data = USERS.get(username, {})
+    
     today = datetime.now().date().isoformat()
     last_claimed = user_data.get('quests', {}).get('daily_login', {}).get('last_claimed', '')
-
     new_claim = last_claimed != today
-    from datetime import datetime
 
-return render_template('dashboard.html',
-                       username=username,
-                       diamonds=user_data['diamonds'],
-                       quests=user_data.get('quests', {}),
-                       now=datetime.now)
+    return render_template('dashboard.html',
+                           username=username,
+                           diamonds=user_data.get('diamonds', 0),
+                           quests=user_data.get('quests', {}),
+                           now=datetime.now,
+                           new_claim=new_claim)
 # Nhận thưởng đăng nhập hằng ngày
 @app.route('/claim/daily')
 def claim_daily():
