@@ -1,75 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <title>Trang chính</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
         .top-bar {
             position: fixed;
             top: 10px;
-            right: 10px;
-            background: #f0f0f0;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: #f5f5f5;
             padding: 10px 15px;
             border-radius: 10px;
-            box-shadow: 0 0 5px gray;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            box-shadow: 0 0 5px #aaa;
         }
-        .diamond {
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        .btn {
-            padding: 5px 10px;
+        .top-bar a {
+            text-decoration: none;
             background: #007bff;
             color: white;
-            text-decoration: none;
+            padding: 8px 12px;
             border-radius: 5px;
         }
-        .btn.logout {
+        .top-bar a.logout {
             background: #dc3545;
+        }
+        h1 {
+            text-align: center;
+        }
+        .quests {
+            max-width: 600px;
+            margin: 100px auto 0;
+        }
+        .quest {
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
     <div class="top-bar">
-        <span class="diamond">💎 {{ diamonds }}</span>
-        <a href="/shop" class="btn">🛒 Cửa hàng</a>
-        <a href="/logout" class="btn logout">🟥 Đăng xuất</a>
+        💎 {{ diamonds }}
+        <a href="/shop">🛒 Cửa hàng</a>
+        <a href="/logout" class="logout">⏹️ Đăng xuất</a>
     </div>
 
-    <h1 style="text-align:center;">Xin chào {{ username }}!</h1>
+    <h1>Xin chào {{ username }}!</h1>
 
-    <h2>Nhiệm vụ:</h2>
-    <ul>
-        {% if quests.daily_login %}
-            <li>
-                ✅ Nhiệm vụ mỗi ngày: Đăng nhập hôm nay
-                {% if not quests.daily_login.completed %}
-                    - <a href="/claim/daily">Nhận thưởng</a>
-                {% else %}
-                    - Đã nhận hôm nay
-                {% endif %}
-            </li>
-        {% endif %}
+    <div class="quests">
+        <h2>Nhiệm vụ:</h2>
+        <ul>
+            {% if quests.daily_login %}
+                <li class="quest">
+                    ✅ Nhiệm vụ mỗi ngày:
+                    {% if new_claim %}
+                        <a href="/claim/daily">Nhận thưởng</a>
+                    {% else %}
+                        Đã nhận hôm nay
+                    {% endif %}
+                </li>
+            {% endif %}
 
-        {% if quests.custom %}
-            {% for qid, quest in quests.custom.items() %}
-                <li>
-                    📌 {{ quest.title }} - 💎{{ quest.reward }} - Trạng thái:
+            {% for key, quest in quests.custom.items() %}
+                <li class="quest">
+                    📝 {{ quest.title }} - 🎁 {{ quest.reward }} 💎<br>
+                    Trạng thái:
                     {% if quest.status == 'pending' %}
                         Đang chờ duyệt
                     {% elif quest.status == 'approved' %}
-                        Đã nhận thưởng
+                        Đã hoàn thành
                     {% else %}
-                        {{ quest.status }}
+                        <a href="/claim/{{ key }}">Gửi yêu cầu hoàn thành</a>
                     {% endif %}
                 </li>
             {% endfor %}
-        {% else %}
-            <li>Không có nhiệm vụ nào.</li>
-        {% endif %}
-    </ul>
+        </ul>
+    </div>
 </body>
 </html>
