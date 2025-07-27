@@ -1,19 +1,25 @@
 {
-  "admin": {
-    "password": "admin123",
-    "diamonds": 100,
-    "cart": [],
-    "missions": []
-  },
-  "user1": {
-    "password": "1234",
-    "diamonds": 20,
-    "cart": [],
-    "missions": [
-      {
-        "title": "Hoàn thành 1 bài học",
-        "reward": 10,
-        "completed": false
-      }
-    ]
-  }
+    "admin": {
+        "password": "1234",
+        "diamonds": 999,
+        "inventory": [],
+        "missions": []
+    },
+    "user1": {
+        "password": "1111",
+        "diamonds": 50,
+        "inventory": [],
+        "missions": [
+            {
+                "title": "Hoàn thành hướng dẫn",
+                "reward": 10,
+                "completed": false
+            },
+            {
+                "title": "Đăng nhập 3 ngày liên tiếp",
+                "reward": 20,
+                "completed": false
+            }
+        ]
+    }
+}
