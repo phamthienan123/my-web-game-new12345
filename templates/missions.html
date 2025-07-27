@@ -1,0 +1,17 @@
+<h1>Nhiệm vụ của bạn</h1>
+<ul>
+  {% for m in missions %}
+    <li>
+      <strong>{{ m.title }}</strong> - 💎 {{ m.reward }}
+      {% if not m.completed %}
+        <form method="POST" style="display:inline;">
+          <input type="hidden" name="mission_index" value="{{ loop.index0 }}">
+          <button type="submit">Hoàn thành</button>
+        </form>
+      {% else %}
+        ✅ Đã hoàn thành
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>
+<a href="/home">← Quay lại</a>
