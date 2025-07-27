@@ -66,30 +66,32 @@ def register():
 # Trang người dùng chính
 @app.route('/dashboard')
 def dashboard():
-    if 'username' not in session or session['username'] == 'admin':
+    if 'username' not in session:
         return redirect('/')
-    username = session['username']
-    user_data = USERS[username]
 
-    # Nhiệm vụ đăng nhập mỗi ngày
+    username = session['username']
+    user_data = USERS.get(username, {})
+
+    # Xử lý nhiệm vụ đăng nhập mỗi ngày
     today = datetime.now().strftime('%Y-%m-%d')
     quests = user_data.get("quests", {})
-    daily = quests.get("daily_login", {})
-    last_claimed = daily.get("last_claimed")
+    daily_login = quests.get("daily_login", {})
+    last_claimed = daily_login.get("last_claimed", "")
+    new_claim = (last_claimed != today)
 
-    new_claim = False
-    if last_claimed != today:
-        quests["daily_login"] = {"last_claimed": today}
-        user_data['diamonds'] += 5
-        new_claim = True
+    # Gán nếu chưa có
+    if "daily_login" not in quests:
+        quests["daily_login"] = {"last_claimed": ""}
+    if "custom" not in quests:
+        quests["custom"] = {}
 
-    user_data["quests"] = quests
-    USERS[username] = user_data
-    with open('users.json', 'w') as f:
-        json.dump(USERS, f, indent=2)
-
-    return render_template("dashboard.html", username=username, diamonds=user_data['diamonds'], new_claim=new_claim,quests=quests)
-
+    return render_template(
+        "dashboard.html",
+        username=username,
+        diamonds=user_data.get("diamonds", 0),
+        quests=quests,
+        new_claim=new_claim
+    )
 # Trang cửa hàng
 @app.route('/shop')
 def shop():
