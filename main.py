@@ -122,39 +122,31 @@ def admin():
             json.dump(ITEMS, f)
     users_to_show = {u: info for u, info in USERS.items() if u != 'admin'}
     return render_template('admin.html', users=users_to_show, items=ITEMS)
-@app.route('/add_mission', methods=['POST'])
-def add_mission():
-    if 'username' in session and session['username'] == 'admin':
-        title = request.form.get('title')
-        reward = int(request.form.get('reward'))
-
-        for user, data in USERS.items():
-            if user != 'admin':
-                if 'missions' not in data:
-                    data['missions'] = []
-                data['missions'].append({
-                    'title': title,
-                    'reward': reward,
-                    'completed': False
-                })
-        save_users()
-        return redirect('/admin')
-    return redirect('/')
-@app.route('/missions', methods=['GET', 'POST'])
-def missions():
-    if 'username' not in session or session['username'] == 'admin':
+@app.route('/create_mission', methods=['POST'])
+def create_mission():
+    if 'username' not in session or session['username'] != 'admin':
         return redirect('/')
+    username = request.form.get('username')
+    title = request.form.get('title')
+    reward = int(request.form.get('reward'))
 
-    username = session['username']
-    user_data = USERS[username]
-
-    if request.method == 'POST':
-        index = int(request.form.get('mission_index'))
-        if not user_data['missions'][index]['completed']:
-            user_data['missions'][index]['completed'] = True
-            user_data['diamonds'] += user_data['missions'][index]['reward']
+    if username in USERS:
+        mission = {"title": title, "reward": reward, "completed": False}
+        USERS[username]['missions'].append(mission)
+        save_users()
+    return redirect('/admin')
+@app.route('/complete_mission/<int:mission_id>', methods=['POST'])
+def complete_mission(mission_id):
+    username = session.get('username')
+    if not username or username == 'admin':
+        return redirect('/')
+    missions = USERS[username]['missions']
+    if 0 <= mission_id < len(missions):
+        if not missions[mission_id]['completed']:
+            missions[mission_id]['completed'] = True
+            USERS[username]['diamonds'] += missions[mission_id]['reward']
             save_users()
-    return render_template('missions.html', missions=user_data['missions'])
+    return redirect('/dashboard')
 @app.route('/give/<username>', methods=['POST'])
 def give_diamonds(username):
     if 'username' in session and session['username'] == 'admin':
@@ -178,7 +170,9 @@ def delete_user(username):
 def logout():
     session.clear()
     return redirect('/')
-
+def save_users():
+    with open('users.json', 'w') as f:
+        json.dump(USERS, f, indent=4)
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 10000))
