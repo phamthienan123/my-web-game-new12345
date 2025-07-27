@@ -50,34 +50,25 @@
 
     <h1>Xin chào {{ username }}!</h1>
 
-    <div class="quests">
-        <h2>Nhiệm vụ:</h2>
-        <ul>
-            {% if quests.daily_login %}
-                <li class="quest">
-                    ✅ Nhiệm vụ mỗi ngày:
-                    {% if new_claim %}
-                        <a href="/claim/daily">Nhận thưởng</a>
-                    {% else %}
-                        Đã nhận hôm nay
-                    {% endif %}
-                </li>
-            {% endif %}
+    <h3>Nhiệm vụ khác</h3>
+{% if custom_quests %}
+    <ul>
+        {% for qid, quest in custom_quests.items() %}
+            <li>
+                {{ quest.title }} - Thưởng: {{ quest.reward }} 💎
+                {% if quest.status == 'pending' %}
+                    <span> | Đang chờ duyệt</span>
+                {% elif quest.status == 'approved' %}
+                    <span> | <form method="post" action="/claim_quest/{{ qid }}" style="display:inline;">
+                        <button type="submit">Nhận thưởng</button>
+                    </form></span>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Không có nhiệm vụ nào.</p>
+{% endif %}
 
-            {% for key, quest in quests.custom.items() %}
-                <li class="quest">
-                    📝 {{ quest.title }} - 🎁 {{ quest.reward }} 💎<br>
-                    Trạng thái:
-                    {% if quest.status == 'pending' %}
-                        Đang chờ duyệt
-                    {% elif quest.status == 'approved' %}
-                        Đã hoàn thành
-                    {% else %}
-                        <a href="/claim/{{ key }}">Gửi yêu cầu hoàn thành</a>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
 </body>
 </html>
