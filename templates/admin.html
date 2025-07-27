@@ -58,7 +58,13 @@
         </tr>
         {% endfor %}
     </table>
-
+    <h2>Tạo nhiệm vụ mới cho người dùng</h2>
+<form method="POST" action="/create_mission">
+    <input type="text" name="username" placeholder="Tên người dùng" required>
+    <input type="text" name="title" placeholder="Tên nhiệm vụ" required>
+    <input type="number" name="reward" placeholder="Phần thưởng (kim cương)" required>
+    <button type="submit">Tạo nhiệm vụ</button>
+</form>
     <p><a href="/logout">Đăng xuất</a></p>
 </body>
 </html>
