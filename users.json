@@ -5,18 +5,23 @@
         "inventory": [],
         "missions": []
     },
-    "Bi": {
-  "password": "123456",
-  "diamonds": 0,
-  "inventory": [],
-  "tasks": [
     {
-      "title": "Đăng nhập hằng ngày",
-      "reward": 5,
-      "done": false,
-      "type": "daily",
-      "last_completed": "2025-07-26"
+  "Bi": {
+    "password": "1234",
+    "diamonds": 10,
+    "inventory": [],
+    "quests": {
+      "daily_login": {
+        "last_claimed": "2025-07-22"
+      },
+      "custom": {
+        "quest1": {
+          "title": "Tham gia diễn đàn",
+          "reward": 15,
+          "status": "pending"
+        }
+      }
     }
-   
-  ]
+  }
+}
 }
