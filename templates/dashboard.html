@@ -29,20 +29,20 @@
             border-radius: 5px;
         }
     </style>
-    <h3>Nhiệm vụ của bạn</h3>
+ <h3>Nhiệm vụ:</h3>
 <ul>
-{% for mission in missions %}
-    <li>
-        {{ mission.title }} - 🎁 {{ mission.reward }} 💎
-        {% if not mission.completed %}
-            <form method="POST" action="/complete_mission/{{ loop.index0 }}" style="display:inline;">
-                <button type="submit">Hoàn thành</button>
-            </form>
-        {% else %}
-            ✅ Đã hoàn thành
-        {% endif %}
-    </li>
-{% endfor %}
+    {% for mission in missions %}
+        <li>
+            {{ mission.title }} - Thưởng: {{ mission.reward }} 💎
+            {% if mission.completed %}
+                ✅ Đã hoàn thành
+            {% else %}
+                <form method="post" action="/complete_mission/{{ loop.index0 }}" style="display:inline;">
+                    <button type="submit">Hoàn thành</button>
+                </form>
+            {% endif %}
+        </li>
+    {% endfor %}
 </ul>
 </head>
 <body>
