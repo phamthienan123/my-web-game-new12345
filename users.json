@@ -5,21 +5,18 @@
         "inventory": [],
         "missions": []
     },
-    "user1": {
-        "password": "1111",
-        "diamonds": 50,
-        "inventory": [],
-        "missions": [
-            {
-                "title": "Hoàn thành hướng dẫn",
-                "reward": 10,
-                "completed": false
-            },
-            {
-                "title": "Đăng nhập 3 ngày liên tiếp",
-                "reward": 20,
-                "completed": false
-            }
-        ]
+    "Bi": {
+  "password": "123456",
+  "diamonds": 0,
+  "inventory": [],
+  "tasks": [
+    {
+      "title": "Đăng nhập hằng ngày",
+      "reward": 5,
+      "done": false,
+      "type": "daily",
+      "last_completed": "2025-07-26"
     }
+   
+  ]
 }
