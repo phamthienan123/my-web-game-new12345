@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - Giao nhiệm vụ</title>
+</head>
+<body>
+    <h1>Giao nhiệm vụ mới cho người dùng</h1>
+    {% if message %}
+        <p style="color:green;">{{ message }}</p>
+    {% endif %}
+    <form method="POST">
+        <label>Tiêu đề nhiệm vụ:</label><br>
+        <input type="text" name="title" required><br><br>
+        <label>Phần thưởng (kim cương):</label><br>
+        <input type="number" name="reward" required><br><br>
+        <button type="submit">Giao nhiệm vụ</button>
+    </form>
+    <p><a href="/admin">⬅️ Quay lại trang admin</a></p>
+</body>
+</html>
