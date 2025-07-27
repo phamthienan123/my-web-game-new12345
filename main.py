@@ -104,7 +104,30 @@ def claim_daily():
         save_users()
 
     return redirect('/dashboard')
+@app.route('/assign_quest', methods=['POST'])
+def assign_quest():
+    if 'username' not in session or session['username'] != 'admin':
+        return redirect('/')
 
+    username = request.form.get('username')
+    title = request.form.get('title')
+    reward = int(request.form.get('reward'))
+
+    if username in USERS:
+        if 'quests' not in USERS[username]:
+            USERS[username]['quests'] = {}
+        if 'custom' not in USERS[username]['quests']:
+            USERS[username]['quests']['custom'] = {}
+
+        quest_id = f"quest{len(USERS[username]['quests']['custom']) + 1}"
+        USERS[username]['quests']['custom'][quest_id] = {
+            "title": title,
+            "reward": reward,
+            "status": "pending"
+        }
+
+        save_users()
+    return redirect('/admin')
 # Trang cửa hàng
 @app.route('/shop')
 def shop():
