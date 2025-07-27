@@ -139,7 +139,7 @@ def admin():
     if session.get('username') != 'admin':
         return redirect('/')
     users = {u: info for u, info in USERS.items() if u != 'admin'}
-    return render_template("admin.html", users=users)
+    return render_template("admin.html", users=USERS, items=ITEMS)
 
 # Admin tặng kim cương
 @app.route('/give/<username>', methods=['POST'])
