@@ -1,32 +1,33 @@
 from flask import Flask, render_template, request, redirect, session
-import json, os
+import os, json
 
 app = Flask(__name__)
-app.secret_key = 'matkhau_bimat'
+app.secret_key = 'bi_mat'
 
-# Load dữ liệu tài khoản
+# Load users
 if os.path.exists('users.json'):
     with open('users.json', 'r') as f:
         USERS = json.load(f)
 else:
     USERS = {
-        "admin": {"password": "1234", "diamonds": 0, "inventory": []}
+        "admin": {
+            "password": "1234",
+            "diamonds": 0,
+            "inventory": [],
+            "missions": []
+        }
     }
-    with open('users.json', 'w') as f:
-        json.dump(USERS, f)
 
-# Load dữ liệu vật phẩm
+# Load items
 if os.path.exists('items.json'):
     with open('items.json', 'r') as f:
         ITEMS = json.load(f)
 else:
     ITEMS = {
-        "kiếm rồng": {"buy": 20, "sell": 10},
-        "giáp vàng": {"buy": 35, "sell": 17},
-        "khiên băng": {"buy": 40, "sell": 20}
+        "kiếm rồng": {"buy": 20, "sell": 10, "image": "kiem.png"},
+        "giáp vàng": {"buy": 35, "sell": 17, "image": "giap.jpg"},
+        "khiên băng": {"buy": 40, "sell": 20, "image": "khien.jpg"}
     }
-    with open('items.json', 'w') as f:
-        json.dump(ITEMS, f)
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -36,7 +37,9 @@ def login():
         password = request.form['password']
         if username in USERS and USERS[username]['password'] == password:
             session['username'] = username
-            return redirect('/admin' if username == 'admin' else '/dashboard')
+            if username == 'admin':
+                return redirect('/admin')
+            return redirect('/dashboard')
         else:
             error = 'Sai tài khoản hoặc mật khẩu!'
     return render_template('index.html', error=error)
@@ -50,9 +53,14 @@ def register():
         if username in USERS:
             error = 'Tài khoản đã tồn tại!'
         else:
-            USERS[username] = {"password": password, "diamonds": 0, "inventory": []}
+            USERS[username] = {
+                "password": password,
+                "diamonds": 0,
+                "inventory": [],
+                "missions": []
+            }
             with open('users.json', 'w') as f:
-                json.dump(USERS, f)
+                json.dump(USERS, f, indent=4)
             return redirect('/')
     return render_template('register.html', error=error)
 
@@ -60,121 +68,128 @@ def register():
 def dashboard():
     if 'username' not in session:
         return redirect('/')
-    username = session['username']
-    user_data = USERS.get(username, {})
-    diamonds = user_data.get('diamonds', 0)
-    return render_template('dashboard.html', username=username, diamonds=diamonds)
+    user = USERS[session['username']]
+    return render_template(
+        'dashboard.html',
+        username=session['username'],
+        diamonds=user['diamonds'],
+        missions=user.get('missions', [])
+    )
 
 @app.route('/shop')
 def shop():
     if 'username' not in session or session['username'] == 'admin':
         return redirect('/')
-    user = USERS[session['username']]
+    user_data = USERS[session['username']]
     return render_template('shop.html',
-                           username=session['username'],
-                           diamonds=user['diamonds'],
-                           items=ITEMS,
-                           inventory=user['inventory'])
+        username=session['username'],
+        diamonds=user_data['diamonds'],
+        items=ITEMS,
+        inventory=user_data['inventory']
+    )
 
 @app.route('/buy/<item>', methods=['POST'])
-def buy_item(item):
-    username = session.get('username')
-    if not username or username == 'admin':
+def buy(item):
+    if 'username' not in session or session['username'] == 'admin':
         return redirect('/')
-    user = USERS[username]
+    user = USERS[session['username']]
     if item in ITEMS and item not in user['inventory']:
         if user['diamonds'] >= ITEMS[item]['buy']:
             user['diamonds'] -= ITEMS[item]['buy']
             user['inventory'].append(item)
             with open('users.json', 'w') as f:
-                json.dump(USERS, f)
+                json.dump(USERS, f, indent=4)
     return redirect('/shop')
 
 @app.route('/sell/<item>', methods=['POST'])
-def sell_item(item):
-    username = session.get('username')
-    if not username or username == 'admin':
+def sell(item):
+    if 'username' not in session or session['username'] == 'admin':
         return redirect('/')
-    user = USERS[username]
-    if item in user['inventory']:
+    user = USERS[session['username']]
+    if item in user['inventory'] and item in ITEMS:
         user['inventory'].remove(item)
         user['diamonds'] += ITEMS[item]['sell']
         with open('users.json', 'w') as f:
-            json.dump(USERS, f)
+            json.dump(USERS, f, indent=4)
     return redirect('/shop')
 
-@app.route('/admin', methods=['GET', 'POST'])
+@app.route('/admin', methods=['GET'])
 def admin():
     if 'username' not in session or session['username'] != 'admin':
         return redirect('/')
-    if request.method == 'POST':
-        # Cập nhật giá mua/bán
-        for item in ITEMS:
-            buy = request.form.get(f"{item}_buy")
-            sell = request.form.get(f"{item}_sell")
-            if buy and sell:
-                try:
-                    ITEMS[item]['buy'] = int(buy)
-                    ITEMS[item]['sell'] = int(sell)
-                except:
-                    pass
-        with open('items.json', 'w') as f:
-            json.dump(ITEMS, f)
-    users_to_show = {u: info for u, info in USERS.items() if u != 'admin'}
-    return render_template('admin.html', users=users_to_show, items=ITEMS)
+    return render_template('admin.html', users=USERS, items=ITEMS)
+
+@app.route('/delete/<username>')
+def delete_user(username):
+    if 'username' not in session or session['username'] != 'admin':
+        return redirect('/')
+    if username in USERS and username != 'admin':
+        del USERS[username]
+        with open('users.json', 'w') as f:
+            json.dump(USERS, f, indent=4)
+    return redirect('/admin')
+
+@app.route('/give/<username>', methods=['POST'])
+def give(username):
+    if 'username' not in session or session['username'] != 'admin':
+        return redirect('/')
+    amount = int(request.form['amount'])
+    if username in USERS:
+        USERS[username]['diamonds'] += amount
+        with open('users.json', 'w') as f:
+            json.dump(USERS, f, indent=4)
+    return redirect('/admin')
+
+@app.route('/update_price', methods=['POST'])
+def update_price():
+    if 'username' not in session or session['username'] != 'admin':
+        return redirect('/')
+    for item in ITEMS:
+        buy = request.form.get(f'buy_{item}')
+        sell = request.form.get(f'sell_{item}')
+        if buy and sell:
+            ITEMS[item]['buy'] = float(buy)
+            ITEMS[item]['sell'] = float(sell)
+    with open('items.json', 'w') as f:
+        json.dump(ITEMS, f, indent=4)
+    return redirect('/admin')
+
 @app.route('/create_mission', methods=['POST'])
 def create_mission():
     if 'username' not in session or session['username'] != 'admin':
         return redirect('/')
-    username = request.form.get('username')
     title = request.form.get('title')
     reward = int(request.form.get('reward'))
-
-    if username in USERS:
-        mission = {"title": title, "reward": reward, "completed": False}
-        USERS[username]['missions'].append(mission)
-        save_users()
+    for user in USERS:
+        if user != 'admin':
+            USERS[user].setdefault('missions', [])
+            USERS[user]['missions'].append({
+                "title": title,
+                "reward": reward,
+                "completed": False
+            })
+    with open('users.json', 'w') as f:
+        json.dump(USERS, f, indent=4)
     return redirect('/admin')
+
 @app.route('/complete_mission/<int:mission_id>', methods=['POST'])
 def complete_mission(mission_id):
-    username = session.get('username')
-    if not username or username == 'admin':
+    if 'username' not in session:
         return redirect('/')
-    missions = USERS[username]['missions']
-    if 0 <= mission_id < len(missions):
-        if not missions[mission_id]['completed']:
-            missions[mission_id]['completed'] = True
-            USERS[username]['diamonds'] += missions[mission_id]['reward']
-            save_users()
+    user = USERS[session['username']]
+    if 0 <= mission_id < len(user['missions']):
+        mission = user['missions'][mission_id]
+        if not mission['completed']:
+            mission['completed'] = True
+            user['diamonds'] += mission['reward']
+            with open('users.json', 'w') as f:
+                json.dump(USERS, f, indent=4)
     return redirect('/dashboard')
-@app.route('/give/<username>', methods=['POST'])
-def give_diamonds(username):
-    if 'username' in session and session['username'] == 'admin':
-        amount = int(request.form.get('amount', 0))
-        if username in USERS and username != 'admin':
-            USERS[username]['diamonds'] += amount
-            with open('users.json', 'w') as f:
-                json.dump(USERS, f)
-    return redirect('/admin')
-
-@app.route('/delete/<username>')
-def delete_user(username):
-    if 'username' in session and session['username'] == 'admin':
-        if username in USERS and username != 'admin':
-            del USERS[username]
-            with open('users.json', 'w') as f:
-                json.dump(USERS, f)
-    return redirect('/admin')
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/')
-def save_users():
-    with open('users.json', 'w') as f:
-        json.dump(USERS, f, indent=4)
-if __name__ == '__main__':
-    import os
-    port = int(os.environ.get('PORT', 10000))
-    app.run(host='0.0.0.0', port=port)
 
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
