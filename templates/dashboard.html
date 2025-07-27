@@ -50,7 +50,15 @@
 
     <h1>Xin chào {{ username }}!</h1>
 
-    
+<h2>Nhiệm vụ:</h2>
+
+{% if new_claim %}
+    <form action="/claim/daily" method="get">
+        <button type="submit">🎁 Nhận thưởng đăng nhập hôm nay</button>
+    </form>
+{% else %}
+    <p>✅ Bạn đã nhận thưởng hôm nay.</p>
+{% endif %}    
 <h3>Nhiệm vụ khác</h3>
 {% if custom_quests %}
     <ul>
