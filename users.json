@@ -1,16 +1,15 @@
-{
-  "user1": {
-    "password": "123",
-    "diamonds": 0,
-    "inventory": [],
-    "quests": [
-      {
-        "title": "Đăng nhập mỗi ngày",
-        "completed": false,
-        "reward": 10
-      }
-    ]
-  },
+"username1": {
+  "password": "123",
+  "diamonds": 0,
+  "cart": [],
+  "missions": [
+    {
+      "title": "Đăng nhập mỗi ngày",
+      "reward": 10,
+      "completed": false
+    }
+  ]
+}
   "admin": {
     "password": "admin123",
     "diamonds": 0,
