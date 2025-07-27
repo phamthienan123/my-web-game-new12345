@@ -74,6 +74,15 @@ def dashboard():
         username=session['username'],
         diamonds=user['diamonds'],
         missions=user.get('missions', [])
+        from datetime import datetime
+
+def daily_login_reward(username):
+    today = datetime.now().strftime('%Y-%m-%d')
+    last = USERS[username]['quests'].get('daily_login', {}).get('last_claimed', '')
+    if last != today:
+        USERS[username]['diamonds'] += 5
+        USERS[username]['quests']['daily_login'] = {'last_claimed': today}
+        save_users()
     )
 
 @app.route('/shop')
@@ -113,11 +122,23 @@ def sell(item):
             json.dump(USERS, f, indent=4)
     return redirect('/shop')
 
-@app.route('/admin', methods=['GET'])
-def admin():
-    if 'username' not in session or session['username'] != 'admin':
+@app.route('/admin/quests', methods=['GET', 'POST'])
+def create_quest():
+    if session.get('username') != 'admin':
         return redirect('/')
-    return render_template('admin.html', users=USERS, items=ITEMS)
+    if request.method == 'POST':
+        title = request.form['title']
+        reward = int(request.form['reward'])
+        for user in USERS:
+            if user != 'admin':
+                USERS[user]['quests']['custom'][title] = {
+                    'title': title,
+                    'reward': reward,
+                    'status': 'incomplete'
+                }
+        save_users()
+        return redirect('/admin')
+    return render_template('admin_quests.html')
 
 @app.route('/delete/<username>')
 def delete_user(username):
@@ -172,19 +193,23 @@ def create_mission():
         json.dump(USERS, f, indent=4)
     return redirect('/admin')
 
-@app.route('/complete_mission/<int:mission_id>', methods=['POST'])
-def complete_mission(mission_id):
-    if 'username' not in session:
+@app.route('/quest/submit/<title>')
+def submit_quest(title):
+    username = session.get('username')
+    if not username or username == 'admin':
         return redirect('/')
-    user = USERS[session['username']]
-    if 0 <= mission_id < len(user['missions']):
-        mission = user['missions'][mission_id]
-        if not mission['completed']:
-            mission['completed'] = True
-            user['diamonds'] += mission['reward']
-            with open('users.json', 'w') as f:
-                json.dump(USERS, f, indent=4)
+    USERS[username]['quests']['custom'][title]['status'] = 'pending'
+    save_users()
     return redirect('/dashboard')
+@app.route('/admin/approve/<username>/<quest>')
+def approve_quest(username, quest):
+    if session.get('username') != 'admin':
+        return redirect('/')
+    if USERS[username]['quests']['custom'][quest]['status'] == 'pending':
+        USERS[username]['diamonds'] += USERS[username]['quests']['custom'][quest]['reward']
+        USERS[username]['quests']['custom'][quest]['status'] = 'approved'
+        save_users()
+    return redirect('/admin')
 
 @app.route('/logout')
 def logout():
