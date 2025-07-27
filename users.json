@@ -1,11 +1,10 @@
 {
-    "admin": {
-        "password": "1234",
-        "diamonds": 999,
-        "inventory": [],
-        "missions": {}
-    },
-    {
+  "admin": {
+    "password": "1234",
+    "diamonds": 999,
+    "inventory": [],
+    "quests": {}
+  },
   "Bi": {
     "password": "1234",
     "diamonds": 10,
@@ -21,6 +20,9 @@
           "status": "pending"
         }
       }
+    }
+  }
+}
     }
   }
 }
