@@ -74,7 +74,7 @@ def dashboard():
         username=session['username'],
         diamonds=user['diamonds'],
         missions=user.get('missions', [])
-        from datetime import datetime
+from datetime import datetime
 
 def daily_login_reward(username):
     today = datetime.now().strftime('%Y-%m-%d')
