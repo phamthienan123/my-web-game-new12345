@@ -1,70 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <style>
-        <background-color: #f0f10f; /
-        button {
-            padding: 10px 20px;
-            background-color: #56ff78;
-            color:greenyellow;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
-    <title>Quản lý Admin</title>
+    <title>Trang quản lý Admin</title>
 </head>
 <body>
-    <h1>Xin chào Admin!</h1>
+    <h1>Quản trị viên</h1>
 
-    <h2>Danh sách tài khoản người dùng</h2>
-    <table border="1" cellpadding="5">
+    <h2>Danh sách người dùng</h2>
+    <table border="1">
         <tr>
             <th>Tài khoản</th>
-            <th>Số kim cương</th>
+            <th>Kim cương</th>
             <th>Hành động</th>
         </tr>
-        {% for username, info in users.items() %}
+        {% for user, info in users.items() %}
         <tr>
-            <td>{{ username }}</td>
-            <td>{{ info.item }}</td>
+            <td>{{ user }}</td>
+            <td>{{ info.diamonds }}</td>
             <td>
-                <form method="post" action="/give/{{ username }}" style="display:inline;">
-                    <input type="number" name="amount" min="1" placeholder="Số kim cương">
+                <form method="post" action="/give/{{ user }}" style="display:inline;">
+                    <input type="number" name="amount" min="1" placeholder="Số lượng">
                     <button type="submit">Tặng</button>
                 </form>
-                <a href="/delete/{{ username }}" onclick="return confirm('Xóa tài khoản này?');">Xóa</a>
+                <a href="/delete/{{ user }}" onclick="return confirm('Bạn chắc muốn xóa?')">Xóa</a>
             </td>
         </tr>
         {% endfor %}
     </table>
 
-    <h2>Quản lý vật phẩm</h2>
-    <table border="1" cellpadding="5">
-        <tr>
-            <th>Tên vật phẩm</th>
-            <th>Giá mua</th>
-            <th>Giá bán</th>
-            <th>Hành động</th>
-        </tr>
-        {% for name, data in items.items() %}
-        <tr>
-            <form method="post" action="/update_item/{{ name }}">
+    <h2>Chỉnh sửa giá vật phẩm</h2>
+    <form method="post" action="/update_prices">
+        <table border="1">
+            <tr>
+                <th>Vật phẩm</th>
+                <th>Giá mua</th>
+                <th>Giá bán</th>
+            </tr>
+            {% for name, data in items.items() %}
+            <tr>
                 <td>{{ name }}</td>
-                <td><input type="number" name="buy" step="0.1" value="{{ data.buy }}" min="1"></td>
-                <td><input type="number" name="sell" step="0.1" value="{{ data.sell }}" min="0"></td>
-                <td><button type="submit">Cập nhật</button></td>
-            </form>
-        </tr>
-        {% endfor %}
-    </table>
-    <h2>Tạo nhiệm vụ mới cho người dùng</h2>
-<form method="POST" action="/create_mission">
-    <input type="text" name="username" placeholder="Tên người dùng" required>
-    <input type="text" name="title" placeholder="Tên nhiệm vụ" required>
-    <input type="number" name="reward" placeholder="Phần thưởng (kim cương)" required>
-    <button type="submit">Tạo nhiệm vụ</button>
-</form>
+                <td><input type="number" name="{{ name }}_buy" value="{{ data.buy }}"></td>
+                <td><input type="number" name="{{ name }}_sell" value="{{ data.sell }}"></td>
+            </tr>
+            {% endfor %}
+        </table>
+        <button type="submit">Cập nhật</button>
+    </form>
+
     <p><a href="/logout">Đăng xuất</a></p>
 </body>
 </html>
