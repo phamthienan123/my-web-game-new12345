@@ -1,25 +1,24 @@
 {
   "admin": {
-    "password": "12345",
+    "password": "1234",
     "diamonds": 999,
-    "inventory": [],
-    "quests": {}
-  },
-  "Bi": {
-    "password": "1234567",
-    "diamonds": 10,
     "inventory": [],
     "quests": {
       "daily_login": {
-        "last_claimed": "2025-07-22"
+        "last_claimed": ""
       },
-      "custom": {
-        "quest1": {
-          "title": "Tham gia diễn đàn",
-          "reward": 15,
-          "status": "pending"
-        }
-      }
+      "custom": {}
+    }
+  },
+  "bi": {
+    "password": "123456",
+    "diamonds": 0,
+    "inventory": [],
+    "quests": {
+      "daily_login": {
+        "last_claimed": ""
+      },
+      "custom": {}
     }
   }
 }
