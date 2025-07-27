@@ -80,27 +80,27 @@ def dashboard():
     last_claimed = user_data.get('quests', {}).get('daily_login', {}).get('last_claimed', '')
 
     new_claim = last_claimed != today
-    return render_template("dashboard.html", username=username, diamonds=user_data.get('diamonds', 0), new_claim=new_claim)
+    from datetime import datetime
 
+return render_template('dashboard.html',
+                       username=username,
+                       diamonds=user_data['diamonds'],
+                       quests=user_data.get('quests', {}),
+                       now=datetime.now)
 # Nhận thưởng đăng nhập hằng ngày
 @app.route('/claim/daily')
 def claim_daily():
     if 'username' not in session:
         return redirect('/')
-    
     username = session['username']
-    today = datetime.now().date().isoformat()
-    user = USERS.get(username)
+    user_data = USERS.get(username)
 
-    if "quests" not in user:
-        user["quests"] = {}
-    if "daily_login" not in user["quests"]:
-        user["quests"]["daily_login"] = {"last_claimed": ""}
+    today = datetime.now().strftime('%Y-%m-%d')
+    last_claimed = user_data.get('quests', {}).get('daily_login', {}).get('last_claimed', '')
 
-    last_claimed = user["quests"]["daily_login"].get("last_claimed", "")
     if last_claimed != today:
-        user["diamonds"] += 5
-        user["quests"]["daily_login"]["last_claimed"] = today
+        user_data['diamonds'] += 10
+        user_data.setdefault('quests', {}).setdefault('daily_login', {})['last_claimed'] = today
         save_users()
 
     return redirect('/dashboard')
