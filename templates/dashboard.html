@@ -50,7 +50,8 @@
 
     <h1>Xin chào {{ username }}!</h1>
 
-    <h3>Nhiệm vụ khác</h3>
+    
+<h3>Nhiệm vụ khác</h3>
 {% if custom_quests %}
     <ul>
         {% for qid, quest in custom_quests.items() %}
@@ -69,6 +70,5 @@
 {% else %}
     <p>Không có nhiệm vụ nào.</p>
 {% endif %}
-
 </body>
 </html>
