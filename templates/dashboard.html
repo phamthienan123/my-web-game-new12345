@@ -1,56 +1,75 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Trang chính</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
         .top-bar {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            background-color: #f0f0f0;
-            padding: 10px;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #f0f0f0;
+            padding: 10px 15px;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 0 5px gray;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .top-bar span, .top-bar a {
-            display: inline-block;
-            margin-left: 10px;
+        .diamond {
+            font-weight: bold;
+            margin-right: 10px;
         }
-        .top-bar a {
-            text-decoration: none;
+        .btn {
             padding: 5px 10px;
-            background-color: #007bff;
+            background: #007bff;
             color: white;
+            text-decoration: none;
             border-radius: 5px;
         }
+        .btn.logout {
+            background: #dc3545;
+        }
     </style>
- <h3>Nhiệm vụ:</h3>
-<ul>
-    {% for mission in missions %}
-        <li>
-            {{ mission.title }} - Thưởng: {{ mission.reward }} 💎
-            {% if mission.completed %}
-                ✅ Đã hoàn thành
-            {% else %}
-                <form method="post" action="/complete_mission/{{ loop.index0 }}" style="display:inline;">
-                    <button type="submit">Hoàn thành</button>
-                </form>
-            {% endif %}
-        </li>
-    {% endfor %}
-</ul>
 </head>
 <body>
     <div class="top-bar">
-        💎 {{ diamonds }} 
-        <a href="/shop">🛒 Cửa hàng</a>
-        <a href="/logout">📕 Đăng xuất</a>
+        <span class="diamond">💎 {{ diamonds }}</span>
+        <a href="/shop" class="btn">🛒 Cửa hàng</a>
+        <a href="/logout" class="btn logout">🟥 Đăng xuất</a>
     </div>
-    <h1 style="margin-top: 100px; text-align:center;">Xin chào {{ username }}!</h1>
+
+    <h1 style="text-align:center;">Xin chào {{ username }}!</h1>
+
+    <h2>Nhiệm vụ:</h2>
+    <ul>
+        {% if quests.daily_login %}
+            <li>
+                ✅ Nhiệm vụ mỗi ngày: Đăng nhập hôm nay
+                {% if not quests.daily_login.completed %}
+                    - <a href="/claim/daily">Nhận thưởng</a>
+                {% else %}
+                    - Đã nhận hôm nay
+                {% endif %}
+            </li>
+        {% endif %}
+
+        {% if quests.custom %}
+            {% for qid, quest in quests.custom.items() %}
+                <li>
+                    📌 {{ quest.title }} - 💎{{ quest.reward }} - Trạng thái:
+                    {% if quest.status == 'pending' %}
+                        Đang chờ duyệt
+                    {% elif quest.status == 'approved' %}
+                        Đã nhận thưởng
+                    {% else %}
+                        {{ quest.status }}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        {% else %}
+            <li>Không có nhiệm vụ nào.</li>
+        {% endif %}
+    </ul>
 </body>
 </html>
