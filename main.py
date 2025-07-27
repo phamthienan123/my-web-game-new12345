@@ -88,7 +88,7 @@ def dashboard():
     with open('users.json', 'w') as f:
         json.dump(USERS, f, indent=2)
 
-    return render_template("dashboard.html", username=username, diamonds=user_data['diamonds'], new_claim=new_claim)
+    return render_template("dashboard.html", username=username, diamonds=user_data['diamonds'], new_claim=new_claim,quests=quests)
 
 # Trang cửa hàng
 @app.route('/shop')
