@@ -7,8 +7,13 @@
   },
   "user1": {
     "password": "1234",
-    "diamonds": 50,
+    "diamonds": 20,
     "cart": [],
-    "missions": []
+    "missions": [
+      {
+        "title": "Hoàn thành 1 bài học",
+        "reward": 10,
+        "completed": false
+      }
+    ]
   }
-}
