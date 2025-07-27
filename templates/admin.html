@@ -46,7 +46,44 @@
         </table>
         <button type="submit">Cập nhật</button>
     </form>
+<h2>Giao nhiệm vụ cho người dùng</h2>
+<form method="post" action="/assign_quest">
+    <label>Tên người dùng:</label>
+    <input type="text" name="username" required>
+    <label>Tiêu đề nhiệm vụ:</label>
+    <input type="text" name="title" required>
+    <label>Phần thưởng:</label>
+    <input type="number" name="reward" min="1" required>
+    <button type="submit">Giao nhiệm vụ</button>
+</form>
 
+<h2>Duyệt nhiệm vụ</h2>
+<table border="1">
+    <tr>
+        <th>Người dùng</th>
+        <th>Nhiệm vụ</th>
+        <th>Phần thưởng</th>
+        <th>Trạng thái</th>
+        <th>Hành động</th>
+    </tr>
+    {% for user, info in users.items() %}
+        {% if info.quests and info.quests.custom %}
+            {% for qid, quest in info.quests.custom.items() %}
+                <tr>
+                    <td>{{ user }}</td>
+                    <td>{{ quest.title }}</td>
+                    <td>{{ quest.reward }}</td>
+                    <td>{{ quest.status }}</td>
+                    <td>
+                        {% if quest.status == 'pending' %}
+                            <a href="/approve_quest/{{ user }}/{{ qid }}">Duyệt</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+</table>
     <p><a href="/logout">Đăng xuất</a></p>
 </body>
 </html>
