@@ -122,7 +122,25 @@ def admin():
             json.dump(ITEMS, f)
     users_to_show = {u: info for u, info in USERS.items() if u != 'admin'}
     return render_template('admin.html', users=users_to_show, items=ITEMS)
-
+@app.route('/admin/quests', methods=['GET', 'POST'])
+def admin_quests():
+    if 'username' not in session or session['username'] != 'admin':
+        return redirect('/')
+    
+    message = ''
+    if request.method == 'POST':
+        title = request.form.get('title')
+        reward = int(request.form.get('reward', 0))
+        for user in USERS:
+            if user != 'admin':
+                USERS[user].setdefault('quests', []).append({
+                    "title": title,
+                    "completed": False,
+                    "reward": reward
+                })
+        save_users()
+        message = 'Đã thêm nhiệm vụ cho tất cả người dùng.'
+    return render_template('admin_quests.html', message=message)
 @app.route('/give/<username>', methods=['POST'])
 def give_diamonds(username):
     if 'username' in session and session['username'] == 'admin':
