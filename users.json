@@ -12,7 +12,7 @@
   },
   "bi": {
     "password": "123456",
-    "diamonds": 10,
+    "diamonds": 0,
     "inventory": [],
     "quests": {
       "daily_login": {
