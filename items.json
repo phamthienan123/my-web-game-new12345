@@ -1,17 +1,31 @@
 {
-  "kiếm rồng": {
-    "buy": 20,
-    "sell": 10,
-    "image": "kiem.png"
+  "rank Đồng": {
+    "buy": 0,
+    "image": "dong.png"
   },
-  "giáp vàng": {
-    "buy": 35,
-    "sell": 17,
-    "image": "giap.jpg"
+  "rank Vàng": {
+    "buy": 100,
+    "sell": 50,
+    "image": "vang.jpg"
   },
-  "khiên băng": {
-    "buy": 40,
-    "sell": 20,
-    "image": "khien.jpg"
-  }
+  "rank Bạch Kim": {
+    "buy": 400,
+    "sell": 200,
+    "image": "bachkim.jpg"
+  },
+  "rank Kim Cương": {
+    "buy": 1000,
+    "sell": 400,
+    "image": "kimcuong.jpg"
+  },
+  "rank Huyền Thoại": {
+    "buy": 10000,
+    "sell": 1000,
+    "image": "huyenthoai.jpg"
+  },
+  "rank Thách Đấu": {
+    "buy": 30000,
+    "sell": 2000,
+    "image": "thachdau.jpg"
+  },
 }
