@@ -10,9 +10,8 @@
       "custom": {}
     }
   },
- {
-  "user1": {
-    "password": "1234",
+  "bi": {
+    "password": "123456",
     "diamonds": 10,
     "inventory": [],
     "quests": {
@@ -27,5 +26,5 @@
         }
       }
     }
+  }
 }
-
