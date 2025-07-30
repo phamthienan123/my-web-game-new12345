@@ -6,26 +6,26 @@
   "rank Vàng": {
     "buy": 100,
     "sell": 50,
-    "image": "vang.jpg"
+    "image": "vang.png"
   },
   "rank Bạch Kim": {
     "buy": 400,
     "sell": 200,
-    "image": "bachkim.jpg"
+    "image": "bachkim.png"
   },
   "rank Kim Cương": {
     "buy": 1000,
     "sell": 400,
-    "image": "kimcuong.jpg"
+    "image": "kimcuong.png"
   },
   "rank Huyền Thoại": {
     "buy": 10000,
     "sell": 1000,
-    "image": "huyenthoai.jpg"
+    "image": "huyenthoai.png"
   },
   "rank Thách Đấu": {
     "buy": 30000,
     "sell": 2000,
-    "image": "thachdau.jpg"
+    "image": "thachdau.png"
   }
 }
