@@ -1,6 +1,7 @@
 {
   "rank Đồng": {
     "buy": 0,
+    "sell":0,
     "image": "dong.png"
   },
   "rank Vàng": {
