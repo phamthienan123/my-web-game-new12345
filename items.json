@@ -1,30 +1,36 @@
 {
-  "rank Đồng": {
+  "rankdong": {
+    "name":"Rank Đồng"
     "buy": 0,
     "sell":0,
     "image": "dong.png"
   },
-  "rank Vàng": {
+  "rankvang": {
+    "name":"Rank Vàng"
     "buy": 100,
     "sell": 50,
     "image": "vang.png"
   },
-  "rank Bạch Kim": {
+  "rankbachkim": {
+    "name":"Rank Bạch Kim",
     "buy": 400,
     "sell": 200,
     "image": "bachkim.png"
   },
-  "rank Kim Cương": {
+  "rankkimcuong": {
+    "name":"Rank Kim Cương"
     "buy": 1000,
     "sell": 400,
     "image": "kimcuong.png"
   },
-  "rank Huyền Thoại": {
+  "rankhuyenthoai": {
+    "name":"Rank Huyền Thoại"
     "buy": 10000,
     "sell": 1000,
     "image": "huyenthoai.png"
   },
-  "rank Thách Đấu": {
+  "rankthachdau": {
+    "name":"Rank Thách Đấu"
     "buy": 30000,
     "sell": 2000,
     "image": "thachdau.png"
