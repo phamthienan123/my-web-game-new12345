@@ -19,17 +19,16 @@ if os.path.exists('items.json'):
 else:
     ITEMS = {}
 
-# Hàm lưu user
+# Lưu user
 def save_users():
     with open('users.json', 'w') as f:
         json.dump(USERS, f, indent=4)
 
-# Hàm lưu vật phẩm
+# Lưu items
 def save_items():
     with open('items.json', 'w') as f:
         json.dump(ITEMS, f, indent=4)
 
-# Trang đăng nhập
 @app.route('/', methods=['GET', 'POST'])
 def login():
     error = ''
@@ -45,7 +44,6 @@ def login():
             error = 'Sai tài khoản hoặc mật khẩu!'
     return render_template('index.html', error=error)
 
-# Trang đăng ký
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     error = ''
@@ -68,69 +66,46 @@ def register():
             return redirect('/')
     return render_template('register.html', error=error)
 
-# Trang chính người dùng
-from datetime import datetime  # NÊN đặt ở đầu file
-
 @app.route('/dashboard')
 def dashboard():
     if 'username' not in session:
         return redirect('/')
-    
     username = session['username']
     user_data = USERS.get(username, {})
-    
     today = datetime.now().date().isoformat()
     last_claimed = user_data.get('quests', {}).get('daily_login', {}).get('last_claimed', '')
     new_claim = last_claimed != today
+
+    # Xác định rank cao nhất từ inventory
+    rank_order = ['rank_bronze', 'rank_silver', 'rank_gold', 'rank_platinum']
+    highest_rank = None
+    for rank in reversed(rank_order):
+        if rank in user_data.get('inventory', []):
+            highest_rank = rank
+            break
 
     return render_template('dashboard.html',
                            username=username,
                            diamonds=user_data.get('diamonds', 0),
                            quests=user_data.get('quests', {}),
+                           new_claim=new_claim,
                            now=datetime.now,
-                           new_claim=new_claim)
-# Nhận thưởng đăng nhập hằng ngày
+                           highest_rank=highest_rank)
+
 @app.route('/claim/daily')
 def claim_daily():
     if 'username' not in session:
         return redirect('/')
     username = session['username']
     user_data = USERS.get(username)
-
     today = datetime.now().strftime('%Y-%m-%d')
     last_claimed = user_data.get('quests', {}).get('daily_login', {}).get('last_claimed', '')
-
     if last_claimed != today:
         user_data['diamonds'] += 10
-        user_data.setdefault('quests', {}).setdefault('daily_login', {})['last_claimed'] = today
+        user_data['quests']['daily_login']['last_claimed'] = today
         save_users()
-
     return redirect('/dashboard')
-@app.route('/assign_quest', methods=['POST'])
-def assign_quest():
-    if 'username' not in session or session['username'] != 'admin':
-        return redirect('/')
 
-    username = request.form.get('username')
-    title = request.form.get('title')
-    reward = int(request.form.get('reward'))
-
-    if username in USERS:
-        if 'quests' not in USERS[username]:
-            USERS[username]['quests'] = {}
-        if 'custom' not in USERS[username]['quests']:
-            USERS[username]['quests']['custom'] = {}
-
-        quest_id = f"quest{len(USERS[username]['quests']['custom']) + 1}"
-        USERS[username]['quests']['custom'][quest_id] = {
-            "title": title,
-            "reward": reward,
-            "status": "pending"
-        }
-
-        save_users()
-    return redirect('/admin')
-# Trang cửa hàng
 @app.route('/shop')
 def shop():
     if 'username' not in session:
@@ -139,11 +114,10 @@ def shop():
     user_data = USERS.get(username, {})
     return render_template('shop.html',
                            username=username,
-                           diamonds=user_data['diamonds'],
+                           diamonds=user_data.get('diamonds', 0),
                            inventory=user_data.get('inventory', []),
                            items=ITEMS)
 
-# Mua vật phẩm
 @app.route('/buy/<item>', methods=['POST'])
 def buy(item):
     if 'username' not in session:
@@ -152,38 +126,37 @@ def buy(item):
     user = USERS.get(username)
     if item not in ITEMS:
         return redirect('/shop')
-
     if item in user['inventory']:
         return redirect('/shop')
-
     if user['diamonds'] >= ITEMS[item]['buy']:
         user['diamonds'] -= ITEMS[item]['buy']
         user['inventory'].append(item)
         save_users()
     return redirect('/shop')
 
-# Bán vật phẩm
 @app.route('/sell/<item>', methods=['POST'])
 def sell(item):
     if 'username' not in session:
         return redirect('/')
     username = session['username']
     user = USERS.get(username)
-
     if item in user['inventory']:
         user['inventory'].remove(item)
         user['diamonds'] += ITEMS[item]['sell']
         save_users()
     return redirect('/shop')
 
-# Trang admin
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/')
+
 @app.route('/admin')
 def admin():
     if 'username' not in session or session['username'] != 'admin':
         return redirect('/')
     return render_template('admin.html', users=USERS, items=ITEMS)
 
-# Admin tặng kim cương
 @app.route('/give/<username>', methods=['POST'])
 def give(username):
     if 'username' not in session or session['username'] != 'admin':
@@ -194,7 +167,6 @@ def give(username):
         save_users()
     return redirect('/admin')
 
-# Admin xóa tài khoản
 @app.route('/delete/<username>')
 def delete(username):
     if 'username' not in session or session['username'] != 'admin':
@@ -204,7 +176,6 @@ def delete(username):
         save_users()
     return redirect('/admin')
 
-# Admin cập nhật giá vật phẩm
 @app.route('/update_prices', methods=['POST'])
 def update_prices():
     if 'username' not in session or session['username'] != 'admin':
@@ -221,12 +192,27 @@ def update_prices():
     save_items()
     return redirect('/admin')
 
-# Đăng xuất
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect('/')
-
+@app.route('/assign_quest', methods=['POST'])
+def assign_quest():
+    if 'username' not in session or session['username'] != 'admin':
+        return redirect('/')
+    username = request.form.get('username')
+    title = request.form.get('title')
+    reward = int(request.form.get('reward'))
+    if username in USERS:
+        if 'quests' not in USERS[username]:
+            USERS[username]['quests'] = {}
+        if 'custom' not in USERS[username]['quests']:
+            USERS[username]['quests']['custom'] = {}
+        quest_id = f"quest{len(USERS[username]['quests']['custom']) + 1}"
+        USERS[username]['quests']['custom'][quest_id] = {
+            "title": title,
+            "reward": reward,
+            "status": "pending"
+        }
+        save_users()
+    return redirect('/admin')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
+
