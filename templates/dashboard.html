@@ -6,6 +6,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 40px;
         }
         .top-bar {
             position: fixed;
@@ -14,7 +15,7 @@
             display: flex;
             gap: 10px;
             align-items: center;
-            background: #f5f5f5;
+            background: #f0f0f0;
             padding: 10px 15px;
             border-radius: 10px;
             box-shadow: 0 0 5px #aaa;
@@ -29,53 +30,72 @@
         .top-bar a.logout {
             background: #dc3545;
         }
-        h1 {
-            text-align: center;
-        }
-        .quests {
-            max-width: 600px;
-            margin: 100px auto 0;
+        .section {
+            margin-top: 80px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .quest {
-            margin-bottom: 15px;
+            margin: 10px 0;
+            padding: 10px;
+            background: #eee;
+            border-radius: 5px;
+        }
+        h1, h2, h3 {
+            text-align: center;
         }
     </style>
 </head>
 <body>
-  <div style="position: absolute; top: 10px; right: 10px;">
+
+<div class="top-bar">
     <span>{{ diamonds }} 💎</span>
-    <a href="/shop" class="btn btn-primary">🛒 Cửa hàng</a>
-    <a href="/logout" class="btn btn-danger">🔴 Đăng xuất</a>
+    <a href="/shop">🛒 Cửa hàng</a>
+    <a href="/logout" class="logout">🔴 Đăng xuất</a>
 </div>
-    <h1>Xin chào {{ username }}!</h1>
 
-<h2>Nhiệm vụ:</h2>
+<div class="section">
+    <h1>Chào {{ username }}!</h1>
 
-{% if new_claim %}
-    <form action="/claim/daily" method="get">
-        <button type="submit">🎁 Nhận thưởng đăng nhập hôm nay</button>
-    </form>
-{% else %}
-    <p>✅ Bạn đã nhận thưởng hôm nay.</p>
-{% endif %}    
-<h3>Nhiệm vụ khác</h3>
-{% if custom_quests %}
-    <ul>
+    {% if highest_rank %}
+        <h3>🎖️ Rank hiện tại: {{ highest_rank.replace('rank_', '').capitalize() }}</h3>
+    {% endif %}
+
+    <h2>🎁 Nhiệm vụ đăng nhập</h2>
+    {% if new_claim %}
+        <form action="/claim/daily" method="get">
+            <button type="submit">Nhận thưởng hôm nay (10 💎)</button>
+        </form>
+    {% else %}
+        <p>✅ Bạn đã nhận thưởng hôm nay.</p>
+    {% endif %}
+
+    <h2>📝 Nhiệm vụ khác</h2>
+    {% if custom_quests %}
         {% for qid, quest in custom_quests.items() %}
-            <li>
-                {{ quest.title }} - Thưởng: {{ quest.reward }} 💎
-                {% if quest.status == 'pending' %}
-                    <span> | Đang chờ duyệt</span>
+            <div class="quest">
+                <strong>{{ quest.title }}</strong> – {{ quest.reward }} 💎
+                <br>
+                {% if quest.status == 'assigned' %}
+                    <form method="post" action="/submit_quest/{{ qid }}">
+                        <button type="submit">Gửi yêu cầu hoàn thành</button>
+                    </form>
+                {% elif quest.status == 'pending' %}
+                    <span>⏳ Đang chờ admin duyệt...</span>
                 {% elif quest.status == 'approved' %}
-                    <span> | <form method="post" action="/claim_quest/{{ qid }}" style="display:inline;">
+                    <form method="post" action="/claim_quest/{{ qid }}">
                         <button type="submit">Nhận thưởng</button>
-                    </form></span>
+                    </form>
+                {% elif quest.status == 'claimed' %}
+                    <span>✅ Đã nhận thưởng</span>
                 {% endif %}
-            </li>
+            </div>
         {% endfor %}
-    </ul>
-{% else %}
-    <p>Không có nhiệm vụ nào.</p>
-{% endif %}
+    {% else %}
+        <p>Không có nhiệm vụ nào.</p>
+    {% endif %}
+</div>
+
 </body>
 </html>
