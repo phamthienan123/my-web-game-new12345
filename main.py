@@ -5,26 +5,25 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-# Load dữ liệu người dùng
+# Tải dữ liệu người dùng
 if os.path.exists('users.json'):
     with open('users.json', 'r') as f:
         USERS = json.load(f)
 else:
     USERS = {}
 
-# Load dữ liệu vật phẩm
+# Tải dữ liệu vật phẩm
 if os.path.exists('items.json'):
     with open('items.json', 'r') as f:
         ITEMS = json.load(f)
 else:
     ITEMS = {}
 
-# Lưu user
+# Hàm lưu dữ liệu
 def save_users():
     with open('users.json', 'w') as f:
         json.dump(USERS, f, indent=4)
 
-# Lưu items
 def save_items():
     with open('items.json', 'w') as f:
         json.dump(ITEMS, f, indent=4)
@@ -33,8 +32,8 @@ def save_items():
 def login():
     error = ''
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form['username']
+        password = request.form['password']
         if username in USERS and USERS[username]['password'] == password:
             session['username'] = username
             if username == 'admin':
@@ -48,10 +47,10 @@ def login():
 def register():
     error = ''
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form['username']
+        password = request.form['password']
         if username in USERS:
-            error = 'Tài khoản đã tồn tại!'
+            error = 'Tên đăng nhập đã tồn tại.'
         else:
             USERS[username] = {
                 'password': password,
@@ -71,25 +70,24 @@ def dashboard():
     if 'username' not in session:
         return redirect('/')
     username = session['username']
-    user_data = USERS.get(username, {})
+    user = USERS[username]
     today = datetime.now().date().isoformat()
-    last_claimed = user_data.get('quests', {}).get('daily_login', {}).get('last_claimed', '')
+    last_claimed = user.get('quests', {}).get('daily_login', {}).get('last_claimed', '')
     new_claim = last_claimed != today
 
-    # Xác định rank cao nhất từ inventory
+    # Xác định rank cao nhất
     rank_order = ['rank_bronze', 'rank_silver', 'rank_gold', 'rank_platinum']
     highest_rank = None
     for rank in reversed(rank_order):
-        if rank in user_data.get('inventory', []):
+        if rank in user.get('inventory', []):
             highest_rank = rank
             break
 
     return render_template('dashboard.html',
                            username=username,
-                           diamonds=user_data.get('diamonds', 0),
-                           quests=user_data.get('quests', {}),
+                           diamonds=user['diamonds'],
                            new_claim=new_claim,
-                           now=datetime.now,
+                           custom_quests=user['quests'].get('custom', {}),
                            highest_rank=highest_rank)
 
 @app.route('/claim/daily')
@@ -97,12 +95,31 @@ def claim_daily():
     if 'username' not in session:
         return redirect('/')
     username = session['username']
-    user_data = USERS.get(username)
-    today = datetime.now().strftime('%Y-%m-%d')
-    last_claimed = user_data.get('quests', {}).get('daily_login', {}).get('last_claimed', '')
-    if last_claimed != today:
-        user_data['diamonds'] += 10
-        user_data['quests']['daily_login']['last_claimed'] = today
+    user = USERS[username]
+    today = datetime.now().date().isoformat()
+    if user['quests']['daily_login'].get('last_claimed') != today:
+        user['diamonds'] += 10
+        user['quests']['daily_login']['last_claimed'] = today
+        save_users()
+    return redirect('/dashboard')
+
+@app.route('/submit_quest/<quest_id>', methods=['POST'])
+def submit_quest(quest_id):
+    username = session['username']
+    if username in USERS:
+        user_quests = USERS[username]['quests']['custom']
+        if quest_id in user_quests and user_quests[quest_id]['status'] == 'assigned':
+            user_quests[quest_id]['status'] = 'pending'
+            save_users()
+    return redirect('/dashboard')
+
+@app.route('/claim_quest/<quest_id>', methods=['POST'])
+def claim_quest(quest_id):
+    username = session['username']
+    user_quests = USERS[username]['quests']['custom']
+    if quest_id in user_quests and user_quests[quest_id]['status'] == 'approved':
+        USERS[username]['diamonds'] += user_quests[quest_id]['reward']
+        user_quests[quest_id]['status'] = 'claimed'
         save_users()
     return redirect('/dashboard')
 
@@ -111,25 +128,23 @@ def shop():
     if 'username' not in session:
         return redirect('/')
     username = session['username']
-    user_data = USERS.get(username, {})
+    user = USERS[username]
     return render_template('shop.html',
                            username=username,
-                           diamonds=user_data.get('diamonds', 0),
-                           inventory=user_data.get('inventory', []),
+                           diamonds=user['diamonds'],
+                           inventory=user.get('inventory', []),
                            items=ITEMS)
 
 @app.route('/buy/<item>', methods=['POST'])
 def buy(item):
     if 'username' not in session:
         return redirect('/')
-    username = session['username']
-    user = USERS.get(username)
-    if item not in ITEMS:
+    user = USERS[session['username']]
+    if item not in ITEMS or item in user['inventory']:
         return redirect('/shop')
-    if item in user['inventory']:
-        return redirect('/shop')
-    if user['diamonds'] >= ITEMS[item]['buy']:
-        user['diamonds'] -= ITEMS[item]['buy']
+    price = ITEMS[item]['buy']
+    if user['diamonds'] >= price:
+        user['diamonds'] -= price
         user['inventory'].append(item)
         save_users()
     return redirect('/shop')
@@ -138,8 +153,7 @@ def buy(item):
 def sell(item):
     if 'username' not in session:
         return redirect('/')
-    username = session['username']
-    user = USERS.get(username)
+    user = USERS[session['username']]
     if item in user['inventory']:
         user['inventory'].remove(item)
         user['diamonds'] += ITEMS[item]['sell']
@@ -151,17 +165,47 @@ def logout():
     session.clear()
     return redirect('/')
 
+# ------------------- ADMIN -------------------
+
 @app.route('/admin')
 def admin():
-    if 'username' not in session or session['username'] != 'admin':
+    if session.get('username') != 'admin':
         return redirect('/')
     return render_template('admin.html', users=USERS, items=ITEMS)
 
+@app.route('/assign_quest', methods=['POST'])
+def assign_quest():
+    if session.get('username') != 'admin':
+        return redirect('/')
+    username = request.form['username']
+    title = request.form['title']
+    reward = int(request.form['reward'])
+
+    if username in USERS:
+        quests = USERS[username]['quests']['custom']
+        quest_id = f"quest{len(quests)+1}"
+        quests[quest_id] = {
+            "title": title,
+            "reward": reward,
+            "status": "assigned"
+        }
+        save_users()
+    return redirect('/admin')
+
+@app.route('/approve/<username>/<quest_id>', methods=['POST'])
+def approve(username, quest_id):
+    if session.get('username') != 'admin':
+        return redirect('/')
+    if username in USERS and quest_id in USERS[username]['quests']['custom']:
+        USERS[username]['quests']['custom'][quest_id]['status'] = 'approved'
+        save_users()
+    return redirect('/admin')
+
 @app.route('/give/<username>', methods=['POST'])
 def give(username):
-    if 'username' not in session or session['username'] != 'admin':
+    if session.get('username') != 'admin':
         return redirect('/')
-    amount = int(request.form.get('amount', 0))
+    amount = int(request.form['amount'])
     if username in USERS:
         USERS[username]['diamonds'] += amount
         save_users()
@@ -169,7 +213,7 @@ def give(username):
 
 @app.route('/delete/<username>')
 def delete(username):
-    if 'username' not in session or session['username'] != 'admin':
+    if session.get('username') != 'admin':
         return redirect('/')
     if username in USERS:
         del USERS[username]
@@ -178,41 +222,18 @@ def delete(username):
 
 @app.route('/update_prices', methods=['POST'])
 def update_prices():
-    if 'username' not in session or session['username'] != 'admin':
+    if session.get('username') != 'admin':
         return redirect('/')
     for item in ITEMS:
-        buy_key = f"{item}_buy"
-        sell_key = f"{item}_sell"
-        if buy_key in request.form and sell_key in request.form:
-            try:
-                ITEMS[item]['buy'] = int(request.form[buy_key])
-                ITEMS[item]['sell'] = int(request.form[sell_key])
-            except:
-                pass
+        buy = request.form.get(f"{item}_buy")
+        sell = request.form.get(f"{item}_sell")
+        if buy and sell:
+            ITEMS[item]['buy'] = int(buy)
+            ITEMS[item]['sell'] = int(sell)
     save_items()
     return redirect('/admin')
 
-@app.route('/assign_quest', methods=['POST'])
-def assign_quest():
-    if 'username' not in session or session['username'] != 'admin':
-        return redirect('/')
-    username = request.form.get('username')
-    title = request.form.get('title')
-    reward = int(request.form.get('reward'))
-    if username in USERS:
-        if 'quests' not in USERS[username]:
-            USERS[username]['quests'] = {}
-        if 'custom' not in USERS[username]['quests']:
-            USERS[username]['quests']['custom'] = {}
-        quest_id = f"quest{len(USERS[username]['quests']['custom']) + 1}"
-        USERS[username]['quests']['custom'][quest_id] = {
-            "title": title,
-            "reward": reward,
-            "status": "pending"
-        }
-        save_users()
-    return redirect('/admin')
+# ---------------------------------------------
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
-
