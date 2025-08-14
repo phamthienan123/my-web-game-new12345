@@ -1,90 +1,118 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <title>trang của admin</title>
+  <meta charset="UTF-8">
+  <title>Quản trị</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <style>
+    body{font-family:Arial,sans-serif;margin:20px}
+    .wrap{display:grid;grid-template-columns:380px 1fr;gap:24px}
+    .card{border:1px solid #e8e8e8;border-radius:12px;padding:14px 16px}
+    .input{width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;margin:6px 0}
+    .btn{background:#1677ff;color:#fff;border:0;border-radius:8px;padding:8px 12px;cursor:pointer;text-decoration:none;display:inline-block}
+    .btn.red{background:#e74c3c}
+    table{border-collapse:collapse;width:100%}
+    th,td{border-bottom:1px solid #eee;padding:8px;text-align:left;vertical-align:top}
+    img{max-width:120px;border:1px solid #eee;border-radius:8px}
+  </style>
 </head>
 <body>
-    <h1>Quản trị viên</h1>
+  <div style="text-align:right;margin-bottom:12px">
+    <a class="btn" href="/dashboard">⬅ Về trang người dùng</a>
+    <a class="btn red" href="/logout">Đăng xuất</a>
+  </div>
 
-    <h2>Danh sách người dùng</h2>
-    <table border="1">
-        <tr>
-            <th>Tài khoản</th>
-            <th>Kim cương</th>
-            <th>Hành động</th>
-        </tr>
-        {% for user, info in users.items() %}
-        <tr>
-            <td>{{ user }}</td>
-            <td>{{ info.diamonds }}</td>
-            <td>
-                <form method="post" action="/give/{{ user }}" style="display:inline;">
-                    <input type="number" name="amount" min="1" placeholder="Số lượng">
-                    <button type="submit">Tặng</button>
-                </form>
-                <a href="/delete/{{ user }}" onclick="return confirm('Bạn chắc muốn xóa?')">Xóa</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+  <div class="wrap">
+    <div class="card">
+      <h3>Tạo quiz mới</h3>
+      <form method="post" action="/create_quiz" enctype="multipart/form-data">
+        <label>Tiêu đề</label>
+        <input class="input" name="title" required>
 
-    <h2>Chỉnh sửa giá vật phẩm</h2>
-    <form method="post" action="/update_prices">
-        <table border="1">
+        <label>Câu hỏi</label>
+        <textarea class="input" name="question" rows="3" required></textarea>
+
+        <label>Đáp án (4 lựa chọn)</label>
+        <input class="input" name="opt1" placeholder="Lựa chọn 1" required>
+        <input class="input" name="opt2" placeholder="Lựa chọn 2" required>
+        <input class="input" name="opt3" placeholder="Lựa chọn 3" required>
+        <input class="input" name="opt4" placeholder="Lựa chọn 4" required>
+
+        <label>Đáp án đúng (0-3)</label>
+        <input class="input" name="correct" type="number" min="0" max="3" value="0" required>
+
+        <label>Phần thưởng (💎)</label>
+        <input class="input" name="reward" type="number" min="0" value="10" required>
+
+        <label>Ảnh minh họa (tùy chọn)</label>
+        <input class="input" type="file" name="image" accept=".png,.jpg,.jpeg,.webp,.gif">
+
+        <label>Giao cho</label>
+        <select class="input" name="target">
+          <option value="ALL">Tất cả người dùng</option>
+          {% for name, data in users.items() %}
+            {% if name != 'admin' %}
+              <option value="{{ name }}">{{ name }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+
+        <button class="btn" type="submit">Tạo quiz</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>Bài nộp chờ duyệt</h3>
+      {% if pending %}
+        <table>
+          <thead>
             <tr>
-                <th>Vật phẩm</th>
-                <th>Giá mua</th>
-                <th>Giá bán</th>
+              <th>User</th>
+              <th>Quiz</th>
+              <th>Ảnh</th>
+              <th>Đáp án chọn</th>
+              <th>Đáp án đúng</th>
+              <th>Thưởng</th>
+              <th>Thao tác</th>
             </tr>
-            {% for name, data in items.items() %}
-            <tr>
-                <td>{{ name }}</td>
-                <td><input type="number" name="{{ name }}_buy" value="{{ data.buy }}"></td>
-                <td><input type="number" name="{{ name }}_sell" value="{{ data.sell }}"></td>
-            </tr>
+          </thead>
+          <tbody>
+            {% for p in pending %}
+              <tr>
+                <td><b>{{ p.username }}</b><br><small>{{ p.quiz.submitted_at }}</small></td>
+                <td>
+                  <div><b>{{ p.quiz.title }}</b></div>
+                  <div>{{ p.quiz.question }}</div>
+                  <ol>
+                    {% for opt in p.quiz.options %}<li>{{ opt }}</li>{% endfor %}
+                  </ol>
+                </td>
+                <td>
+                  {% if p.quiz.image %}
+                    <img src="/{{ p.quiz.image }}">
+                  {% endif %}
+                </td>
+                <td>{{ p.quiz.options[p.quiz.user_answer] if p.quiz.user_answer is not none }}</td>
+                <td>{{ p.quiz.options[p.quiz.answer] }}</td>
+                <td>+{{ p.quiz.reward }}💎</td>
+                <td>
+                  <form method="post" action="/approve_quiz/{{ p.username }}/{{ p.qid }}" style="display:inline">
+                    <button class="btn" type="submit">Duyệt</button>
+                  </form>
+                  <form method="post" action="/reject_quiz/{{ p.username }}/{{ p.qid }}" style="display:inline">
+                    <button class="btn red" type="submit">Từ chối</button>
+                  </form>
+                </td>
+              </tr>
             {% endfor %}
+          </tbody>
         </table>
-        <button type="submit">Cập nhật</button>
-    </form>
-<h2>Giao nhiệm vụ cho người dùng</h2>
-<form method="post" action="/assign_quest">
-    <label>Tên người dùng:</label>
-    <input type="text" name="username" required>
-    <label>Tiêu đề nhiệm vụ:</label>
-    <input type="text" name="title" required>
-    <label>Phần thưởng:</label>
-    <input type="number" name="reward" min="1" required>
-    <button type="submit">Giao nhiệm vụ</button>
-</form>
-
-<h2>Duyệt nhiệm vụ</h2>
-<table border="1">
-    <tr>
-        <th>Người dùng</th>
-        <th>Nhiệm vụ</th>
-        <th>Phần thưởng</th>
-        <th>Trạng thái</th>
-        <th>Hành động</th>
-    </tr>
-    {% for user, info in users.items() %}
-        {% if info.quests and info.quests.custom %}
-            {% for qid, quest in info.quests.custom.items() %}
-                <tr>
-                    <td>{{ user }}</td>
-                    <td>{{ quest.title }}</td>
-                    <td>{{ quest.reward }}</td>
-                    <td>{{ quest.status }}</td>
-                    <td>
-                        {% if quest.status == 'pending' %}
-                            <a href="/approve_quest/{{ user }}/{{ qid }}">Duyệt</a>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-        {% endif %}
-    {% endfor %}
-</table>
-    <p><a href="/logout">Đăng xuất</a></p>
+      {% else %}
+        <div>Chưa có bài nộp.</div>
+      {% endif %}
+    </div>
+  </div>
 </body>
 </html>
+
 
